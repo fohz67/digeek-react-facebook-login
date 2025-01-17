@@ -55,7 +55,7 @@ export default function HomeScreen() {
 
     if (key === "imageURL" && value) {
       return (
-        <Image key={key} source={{ uri: value }} style={styles.profileImage} />
+        <Image key={key} source={{ uri: value }} style={styles.pic} />
       );
     }
 
@@ -69,21 +69,21 @@ export default function HomeScreen() {
   if (!user || !tok) {
     return (
       <View style={styles.container}>
-        <TouchableOpacity style={styles.button} onPress={login}>
-          <Text style={styles.buttonText}>Login With Facebook</Text>
+        <TouchableOpacity style={styles.btn} onPress={login}>
+          <Text style={styles.btnText}>Login With Facebook</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer}>
+    <ScrollView contentContainerStyle={styles.scroll}>
       <View style={styles.card}>
         {Object.entries(user).map(([key, value]) => item(key, value))}
         <Text style={styles.text}>Token: {tok.accessToken}</Text>
       </View>
-      <TouchableOpacity style={styles.button} onPress={logout}>
-        <Text style={styles.buttonText}>Logout</Text>
+      <TouchableOpacity style={styles.btn} onPress={logout}>
+        <Text style={styles.btnText}>Logout</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -96,14 +96,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  scrollContainer: {
+  scroll: {
     alignItems: "center",
     height: "100%",
+    paddingTop: 70,
     backgroundColor: "#fff",
-    marginTop: 50,
-    paddingVertical: 20,
   },
-  button: {
+  btn: {
     backgroundColor: "#1877F2",
     padding: 15,
     borderRadius: 8,
@@ -111,7 +110,7 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
   },
-  buttonText: {
+  btnText: {
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
@@ -127,11 +126,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginVertical: 5,
   },
-  profileImage: {
+  pic: {
     width: 50,
     height: 50,
     borderRadius: 8,
-    marginBottom: 10,
+    marginVertical: 10,
     alignSelf: "flex-start",
   },
 });
