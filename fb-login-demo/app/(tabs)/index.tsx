@@ -15,71 +15,77 @@ import {
   Profile,
 } from "react-native-fbsdk-next";
 
+const PERMISSIONS = ["public_profile", "email"];
+
 export default function HomeScreen() {
-  const [userProfile, setUserProfile] = useState(null);
+  const [user, setUser] = useState(null);
+  const [tok, setTok] = useState(null);
 
   useEffect(() => {
-    (async () => {
-      const { status } = await requestTrackingPermissionsAsync();
-      Settings.initializeSDK();
-      if (status === "granted") {
-        await Settings.setAdvertiserTrackingEnabled(true);
-      }
-    })();
+    req();
   }, []);
 
-  const loginWithFacebook = async () => {
-    const result = await LoginManager.logInWithPermissions([
-      "public_profile",
-      "email",
-    ]);
-    if (!result.isCancelled) {
-      const tokenData = await AccessToken.getCurrentAccessToken();
-      console.log("Access Token:", tokenData);
-      const profile = await Profile.getCurrentProfile();
-      console.log("Profile Info:", profile);
-      setUserProfile(profile);
+  const req = async () => {
+      const { status } = await requestTrackingPermissionsAsync();
+
+      Settings.initializeSDK();
+      status === "granted" && await Settings.setAdvertiserTrackingEnabled(true);
+  }
+
+  const login = async () => {
+    if (await LoginManager.logInWithPermissions(PERMISSIONS)) {
+      const tok = await AccessToken.getCurrentAccessToken();
+      const user = await Profile.getCurrentProfile();
+      
+      tok && setTok(tok);
+      user && setUser(user);
     }
   };
 
   const logout = () => {
     LoginManager.logOut();
-    setUserProfile(null);
+    setUser(null);
+    setTok(null);
   };
 
-  return (
-    <View style={styles.container}>
-      {!userProfile ? (
-        <TouchableOpacity style={styles.button} onPress={loginWithFacebook}>
+  const item = (key, value) => {
+    if (!value) {
+      return null;
+    }
+
+    if (key === "imageURL" && value) {
+      return (
+        <Image key={key} source={{ uri: value }} style={styles.profileImage} />
+      );
+    }
+
+    return (
+      <Text key={key} style={styles.text}>
+        {key}: {value?.toString()}
+      </Text>
+    );
+  };
+
+  if (!user || !tok) {
+    return (
+      <View style={styles.container}>
+        <TouchableOpacity style={styles.button} onPress={login}>
           <Text style={styles.buttonText}>Login With Facebook</Text>
         </TouchableOpacity>
-      ) : (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.card}>
-            {Object.entries(userProfile).map(([key, value]) => {
-              if (key === "imageURL" && value) {
-                return (
-                  <Image
-                    key={key}
-                    source={{ uri: value }}
-                    style={styles.profileImage}
-                  />
-                );
-              }
-              return (
-                <Text key={key} style={styles.text}>
-                  {key}: {value?.toString() || "N/A"}
-                </Text>
-              );
-            })}
-          </View>
+      </View>
+    );
+  }
 
-          <TouchableOpacity style={styles.button} onPress={logout}>
-            <Text style={styles.buttonText}>Logout</Text>
-          </TouchableOpacity>
-        </ScrollView>
-      )}
-    </View>
+  return (
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View style={styles.card}>
+        {Object.entries(user).map(([key, value]) => item(key, value))}
+        <Text style={styles.text}>Token: {tok.accessToken}</Text>
+      </View>
+      <TouchableOpacity style={styles.button} onPress={logout}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
+    </ScrollView>
   );
 }
 
@@ -92,7 +98,8 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     alignItems: "center",
-    overflow: "scroll",
+    height: "100%",
+    backgroundColor: "#fff",
     marginTop: 50,
     paddingVertical: 20,
   },
@@ -125,6 +132,6 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 8,
     marginBottom: 10,
-    alignSelf: "left",
+    alignSelf: "flex-start",
   },
 });
