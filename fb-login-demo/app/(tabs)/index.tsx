@@ -38,7 +38,15 @@ export default function HomeScreen() {
       const user = await Profile.getCurrentProfile();
       
       tok && setTok(tok);
+
+      // iOS only
       user && setUser(user);
+
+      // Android
+      const response = await fetch(`https://graph.facebook.com/v21.0/me?fields=id,name,email&access_token=${tok.accessToken}`);
+      const data = await response.json();
+      setUser(data);
+
     }
   };
 
@@ -49,10 +57,6 @@ export default function HomeScreen() {
   };
 
   const item = (key, value) => {
-    if (!value) {
-      return null;
-    }
-
     if (key === "imageURL" && value) {
       return (
         <Image key={key} source={{ uri: value }} style={styles.pic} />

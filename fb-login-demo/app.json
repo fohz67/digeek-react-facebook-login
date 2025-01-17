@@ -31,7 +31,8 @@
       "permissions": [
         "android.permission.INTERNET",
         "com.google.android.gms.permission.AD_ID"
-      ]
+      ],
+      "package": "com.f0hz67.fblogindemo"
     },
     "web": {
       "bundler": "metro",
